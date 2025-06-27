@@ -1,0 +1,426 @@
+// === GLOBALS & SLIDERS ===
+//samples('http://localhost:5432/')
+setCps(150/60/4)  // 150 BPM
+
+// --- DRUM SLIDERS ---
+const KICK_GAIN    = slider(0.1684, 0.1, 1)
+const KICK_LPF     = slider(5961, 1000, 12000)
+const CLAP_GAIN    = slider(0.1, 0.1, 1)
+const CLAP_LPF     = slider(3845.6, 800, 8000)
+const HATS_GAIN    = slider(0.05, 0.05, 1)
+const HATS_LPF     = slider(1200, 1200, 12000)
+const OHATS_GAIN   = slider(0.05, 0.05, 1)
+const OHATS_LPF    = slider(1000, 1000, 8000)
+const SHAKER_GAIN  = slider(0.01, 0.01, 0.3)
+const SHAKER_LPF   = slider(1000, 1000, 8000)
+const RIM_GAIN     = slider(0.01, 0.01, 0.5)
+const RIM_LPF      = slider(800, 800, 8000)
+const FILL_GAIN    = slider(0.01, 0.01, 0.7)
+const FILL_LPF     = slider(1000, 1000, 8000)
+
+// --- BASS SLIDERS ---
+const BASS_CLUB_GAIN = slider(0.4519, 0.1, 1)
+const BASS_CLUB_LPF  = slider(866, 200, 2000)
+const BASS_DEEP_GAIN = slider(0.1, 0.1, 1)
+const BASS_DEEP_LPF  = slider(200, 200, 2000)
+
+// --- PAD SLIDERS ---
+const SPACE_PAD_GAIN = slider(0.01, 0.01, 0.5)
+const SPACE_PAD_LPF  = slider(800, 800, 6000)
+const POLY_PAD_GAIN  = slider(0.01, 0.01, 0.5)
+const POLY_PAD_LPF   = slider(800, 800, 6000)
+
+// --- CHORD/PLUCK SLIDERS ---
+const CHORD_PLUCK_GAIN = slider(0.16, 0.01, 0.5)
+const CHORD_PLUCK_LPF  = slider(1800, 800, 6000)
+const GLIDE_PAD_GAIN   = slider(0.11, 0.01, 0.5)
+const GLIDE_PAD_LPF    = slider(1200, 800, 6000)
+
+// --- LEAD SLIDERS ---
+const LEAD_CHIFF_GAIN = slider(0.01, 0.01, 0.7)
+const LEAD_CHIFF_LPF  = slider(157100, 4000)
+const LEAD_SUPER_GAIN = slider(0.01, 0.01, 0.7)
+const LEAD_SUPER_LPF  = slider(500, 500, 4000)
+const BLIP_SYNTH_GAIN = slider(0.01, 0.01, 0.7)
+const BLIP_SYNTH_LPF  = slider(200, 200, 4000)
+
+// --- VOX SLIDERS ---
+const VOX_GAIN = slider(0.01, 0.01, 1)
+const VOX_LPF  = slider(200, 200, 3000)
+
+// --- FX SLIDERS ---
+const RISER_GAIN   = slider(0.01, 0.01, 1)
+const RISER_LPF    = slider(800, 800, 12000)
+const CRASH_GAIN   = slider(0.01, 0.01, 1)
+const CRASH_LPF    = slider(800, 800, 12000)
+const IMPACT_GAIN  = slider(0.01, 0.01, 1)
+const REVERSE_GAIN = slider(0.01, 0.01, 1)
+const FX_LPF       = slider(800, 800, 12000) // Shared by multiple FX 
+
+const GLOBAL_ROOM = slider(0.4966, 0.1, 0.7) // Universal room slider
+
+// --- Ducking (sidechain) ---
+const DUCKER = "<0.2 1 0.25 1>".slow(2)
+
+// === DRUM KITS (original) ===
+const MAIN_KICK = s("tr909_bd").struct("x x x x")
+  .gain(KICK_GAIN)
+  .lpf(KICK_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+const CLAP = s("tr909_cp").struct("~ x ~ x ")
+  .gain(CLAP_GAIN)
+  .lpf(CLAP_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+const HATS = s("tr909_hh").struct("x x x x x x x x").fast(2)
+  .gain(HATS_GAIN)
+  .lpf(HATS_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+const OHATS = s("tr909_oh").struct("~ ~ x ~ ~ ~ x ~").fast(2)
+  .gain(OHATS_GAIN)
+  .lpf(OHATS_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+const SHAKER = s("tr808_shake").struct("x - x - x x - x").fast(2)
+  .gain(SHAKER_GAIN)
+  .lpf(SHAKER_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+const RIM = s("tr909_rim").struct("~ x ~ ~ ~ x ~ ~")
+  .gain(RIM_GAIN)
+  .lpf(RIM_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+const FILL = s("tr808_perc").struct("~ x x ~ x ~ ~ x")
+  .gain(FILL_GAIN)
+  .lpf(FILL_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+// === DRUM STACKS (original & new) ===
+const DRUMS_MAIN = stack(MAIN_KICK, CLAP, HATS, OHATS, SHAKER)
+  ._punchcard({ width: 300, height: 50 });
+
+const DRUMS_ALT  = stack(MAIN_KICK, CLAP, HATS, FILL, RIM)
+  ._punchcard({ width: 300, height: 50 });
+
+const DRUMS_FILL = stack(MAIN_KICK, CLAP, HATS, FILL, OHATS)
+  ._punchcard({ width: 300, height: 50 });
+
+const DRUMS_FUNKY = stack(
+  MAIN_KICK.struct("x---x--x-x-x--x"),
+  CLAP.struct("---x---x-x---x--"),
+  HATS.struct("x-x-x-x-x--x-xx-").fast(2),
+  OHATS.struct("----x---x---x---").fast(2),
+  SHAKER.struct("--x---x-x-x-x--").fast(2),
+  RIM.struct("x-------x-------")
+)._punchcard({ width: 300, height: 50 });
+
+const DRUMS_GARAGE = stack(
+  MAIN_KICK.struct("x-x---x--x-x---x"),
+  CLAP.struct("----x---x---x---"),
+  HATS.struct("x-x-x-x-x-x-x-x").fast(3),
+  OHATS.struct("x-------x-------").fast(3),
+  SHAKER.struct("--x-x---x-x---x").fast(2),
+  FILL.struct("----x---x---x---")
+)._punchcard({ width: 300, height: 50 });
+
+const DRUMS_TECHNO = stack(
+  MAIN_KICK.struct("x---x---x---x---"),
+  CLAP.struct("----x-------x---"),
+  HATS.struct("x-x-x-x-x-x-x-x").fast(2),
+  OHATS.struct("--------x-------").fast(2),
+  SHAKER.struct("-x-x-x-x-x-x-x-").fast(3),
+  RIM.struct("x-----x-----x---x")
+)._punchcard({ width: 300, height: 50 });
+
+const DRUMS_UKG_2STEP = stack(
+  MAIN_KICK.struct("x---x--x---x--x"),
+  CLAP.struct("---x---x---x---x"),
+  HATS.struct("x-x-x-x-x-xx-x-").fast(3),
+  OHATS.struct("--x---x-x---x--").fast(2),
+  SHAKER.struct("x-x---x---x-x--").fast(2),
+  RIM.struct("--x-x-----x-x---")
+)._punchcard({ width: 300, height: 50 });
+
+const DRUMS_COSMIC_EDM = stack(
+  MAIN_KICK.struct("x---x---x-x---x"),
+  CLAP.struct("--x---x---x---x-"),
+  HATS.struct("x-x-x-x-x-x-x-x-x").fast(2),
+  OHATS.struct("----x-------x---").fast(3),
+  SHAKER.struct("x--x--x--x--x--").fast(2),
+  FILL.struct("x---x---x---x---")
+)._punchcard({ width: 300, height: 50 });
+
+// === BASSLINES (all with punchcard) ===
+const BASSLINE_CLUB = note("f#3@8 c#3@3 d3@5 a3@8 c#3@3 d3@5 f#2@8 c#3@3 d3@5 d2@8 d3@3")
+  .slow(2)
+  .struct("x!8")
+  .sustain(0.45)
+  .sound("sawtooth")
+  .coarse(2)
+  .decay(0.08)
+  .gain(BASS_CLUB_GAIN)
+  .hpf(150)
+  .lpf(BASS_CLUB_LPF)
+  .delay(0.18)
+  .room(0.18)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_DEEP = note("f#3@8 c#3@3 d3@5 a3@8 c#3@3 d3@5 f#2@8 c#3@3 d3@5 d2@8 d3@3")
+  .slow(2)
+  .struct("x!8")
+  .sound("gm_synth_bass_1")
+  .coarse(2)
+  .decay(0.1)
+  .gain(BASS_DEEP_GAIN)
+  .hpf(120)
+  .lpf(BASS_DEEP_LPF)
+  .delay(0.23)
+  .room(0.22)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_ROLLER = note("f#3 a3 c#4 d4 a3 d4 f#3 a3 d4 a3 f#3 c#4")
+  .sound("sawtooth")
+  .gain(BASS_CLUB_GAIN)
+  .lpf(BASS_CLUB_LPF)
+  .hpf(180)
+  .decay(0.11)
+  .coarse(2)
+  .delay(0.18)
+  .struct("x-x-x-x---x-x-x-")
+  .room(0.22)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_SUB = note("d2 d3 <a2 a3> f#2 c#3")
+  .sound("gm_synth_bass_1")
+  .gain(BASS_DEEP_GAIN)
+  .lpf(BASS_DEEP_LPF)
+  .hpf(100)
+  .decay(0.22)
+  .struct("x---x---x-x---x-")
+  .slow(2)
+  .room(0.17)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_BROKEN = note("a2 c#3 d3 f#2 c#3 a2 d3 f#2")
+  .sound("sawtooth")
+  .gain(BASS_CLUB_GAIN)
+  .lpf(BASS_CLUB_LPF)
+  .hpf(130)
+  .coarse(2)
+  .decay(0.09)
+  .struct("x-x--x---x-x-x--")
+  .delay(0.16)
+  .room(0.19)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_2STEP = note("c2 c3 d2 bb2 g2 g#2 d3 c3")
+  .sound("sawtooth")
+  .gain(BASS_CLUB_GAIN)
+  .lpf(BASS_CLUB_LPF)
+  .hpf(150)
+  .coarse(2)
+  .decay(0.12)
+  .struct("x---xx-x-x-x-x-x")
+  .room(0.16)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_SPACE_BOUNCE = note("f#2 a2 c3 g2 d3 c2 a2")
+  .sound("gm_synth_bass_1")
+  .gain(BASS_DEEP_GAIN)
+  .lpf(BASS_DEEP_LPF)
+  .hpf(90)
+  .decay(0.18)
+  .struct("x-x--x-x-x--x-x-")
+  .room(0.19)
+  ._punchcard({ width: 300, height: 50 });
+
+// === PAD/SYNTHS (all with punchcard and sliders) ===
+const SPACE_PAD = note("<c3 d3 g3 b3>").sound("supersaw")
+  .gain(SPACE_PAD_GAIN)
+  .lpf(SPACE_PAD_LPF)
+  .room(GLOBAL_ROOM)
+  .sustain(1.6)
+  .slow(1)
+  ._punchcard({ width: 300, height: 50 });
+
+const POLY_PAD = note("<c3 d3 g3 b3>").sound("gm_pad_poly")
+  .gain(POLY_PAD_GAIN)
+  .lpf(POLY_PAD_LPF)
+  .room(GLOBAL_ROOM)
+  .sustain(1.4)
+  .slow(1)
+  ._punchcard({ width: 300, height: 50 });
+
+const PAD_FAST_SWELL = note("<c3 d3 g3 b3>").sound("supersaw")
+  .gain(SPACE_PAD_GAIN)
+  .lpf(SPACE_PAD_LPF)
+  .room(GLOBAL_ROOM)
+  .sustain(0.7)
+  .slow(0.5)
+  .struct("x-x-x-x-x-x-x-x")
+  ._punchcard({ width: 300, height: 50 });
+
+const PAD_UKG_SYNC = note("<c3 eb3 g3 bb3>").sound("gm_pad_poly")
+  .gain(POLY_PAD_GAIN)
+  .lpf(POLY_PAD_LPF)
+  .room(GLOBAL_ROOM)
+  .sustain(0.38)
+  .slow(0.45)
+  .struct("x--x-x--x-x-x--")
+  ._punchcard({ width: 300, height: 50 });
+
+const SPACE_CHORD_PLUCK = note("<f3 a3 c4 e4>").sound("triangle")
+  .gain(CHORD_PLUCK_GAIN)
+  .lpf(CHORD_PLUCK_LPF)
+  .room(0.2)
+  .sustain(0.19)
+  .slow(0.35)
+  .struct("x---x-x-x---x--")
+  ._punchcard({ width: 300, height: 50 });
+
+const GLIDE_PAD = note("<g3 bb3 d4 f4>").sound("supersaw")
+  .gain(GLIDE_PAD_GAIN)
+  .lpf(GLIDE_PAD_LPF)
+  .room(0.28)
+  .sustain(1.1)
+  .slow(0.7)
+  .struct("x-x-x-x-x-x---x")
+  ._punchcard({ width: 300, height: 50 });
+
+// === LEADS (all with punchcard and sliders) ===
+const LEAD_CHIFF = note("c5 d#5 f5 a5").sound("gm_lead_4_chiff")
+  .fast(2)
+  .gain(LEAD_CHIFF_GAIN)
+  .lpf(LEAD_CHIFF_LPF)
+  .room(0.4)
+  .delay(0.18)
+  ._punchcard({ width: 300, height: 50 });
+
+const LEAD_SUPERSAW = note("f#3@8 c#3@3 d3@5 a3@8 c#3@3 d3@5 f#2@8 c#3@3 d3@5 d2@8 d3@3")
+  .slow(2)
+  .struct("x!8")
+  .sound("supersaw")
+  .gain(LEAD_SUPER_GAIN)
+  .lpf(LEAD_SUPER_LPF)
+  .room(0.55)
+  .delay(0.14)
+  ._punchcard({ width: 300, height: 50 });
+
+const BLIP_SYNTH = note("f#4@8 c#5@3 d5@5 a4@8 c#5@3 d5@5 f#5@8 c#5@3 d5@5 d4@8 d5@3")
+  .sound("triangle")
+  .gain(BLIP_SYNTH_GAIN)
+  .lpf(BLIP_SYNTH_LPF)
+  .room(0.2)
+  .fast(4)
+  ._punchcard({ width: 300, height: 50 });
+
+// === VOCAL TEXTURE ===
+const VOX = s("Heartbeat:0").slow(2)
+  .note("g#1")
+  .slice(8, "<5 6>").fast(2)
+  .chop(32)
+  .cut(1)
+  .loopAt(4)
+  .gain(VOX_GAIN)
+  .room(GLOBAL_ROOM)
+  .lpf(VOX_LPF)
+  ._punchcard({ width: 300, height: 50 });
+
+// === FX ===
+const RISER = s("gm_fx_crystal")
+  .note("c3 d3 e3 f3 g3 a3 b3 c4")
+  .gain(RISER_GAIN)
+  .lpf(RISER_LPF)
+  .room(GLOBAL_ROOM)
+  .slow(2)
+  ._punchcard({ width: 300, height: 50 });
+
+const CRASH = s("tr909_cr").slice(4, "3 2 1 0").chop(4)
+  .gain(CRASH_GAIN)
+  .lpf(CRASH_LPF)
+  .slow(2)
+  .room(GLOBAL_ROOM)
+  ._punchcard({ width: 300, height: 50 });
+
+const IMPACT = s("gm_fx_gunshot")
+  .gain(IMPACT_GAIN)
+  .lpf(FX_LPF)
+  .room(GLOBAL_ROOM)
+  ._punchcard({ width: 300, height: 50 });
+
+const REVERSE = s("gm_fx_reverse_cymbal")
+  .gain(REVERSE_GAIN)
+  .lpf(FX_LPF)
+  .room(GLOBAL_ROOM)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_CLUB_ALT = note("d3@8 f#3@3 a3@5 c#3@8 f#3@3 d3@5 a2@8 c#3@3 a2@5 f#2@8 d3@3")
+  .slow(2)
+  .struct("x!8")
+  .sustain(0.41)
+  .sound("sawtooth")
+  .coarse(2)
+  .decay(0.09)
+  .gain(BASS_CLUB_GAIN)
+  .hpf(140)
+  .lpf(BASS_CLUB_LPF)
+  .delay(0.16)
+  .room(0.19)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_CLUB_HOP = note("f#3@8 d3@5 c#3@3 a3@8 d3@5 f#2@8 a2@8 c#3@3 d2@8")
+  .slow(2)
+  .struct("x!4")
+  .sustain(0.43)
+  .sound("sawtooth")
+  .coarse(2)
+  .decay(0.08)
+  .gain(BASS_CLUB_GAIN)
+  .hpf(155)
+  .lpf(BASS_CLUB_LPF)
+  .delay(0.19)
+  .room(0.17)
+  ._punchcard({ width: 300, height: 50 });
+
+const BASSLINE_CLUB_EDM = note("a3@6 c#3@5 d3@5 f#3@8 a2@4 d3@3 c#3@5 f#2@8")
+  .slow(2)
+  .struct("x!8")
+  .sustain(0.39)
+  .sound("sawtooth")
+  .coarse(2)
+  .decay(0.10)
+  .gain(BASS_CLUB_GAIN)
+  .hpf(165)
+  .lpf(BASS_CLUB_LPF)
+  .delay(0.15)
+  .room(0.21)
+  ._punchcard({ width: 300, height: 50 });
+
+
+// === JAM PRESETS (OLD & NEW) ===
+
+// stack(SPACE_PAD, POLY_PAD)
+// stack(DRUMS_MAIN, BASSLINE_CLUB, LEAD_SUPERSAW, VOX, SPACE_PAD, CRASH)
+// stack(DRUMS_ALT, BASSLINE_DEEP, LEAD_CHIFF, VOX, POLY_PAD, REVERSE)
+// stack(DRUMS_FILL, BASSLINE_CLUB, BLIP_SYNTH, RISER)
+// stack(SPACE_PAD, POLY_PAD, BLIP_SYNTH)
+// stack(IMPACT, CRASH, REVERSE)
+
+// stack(DRUMS_FUNKY, BASSLINE_ROLLER, LEAD_CHIFF, POLY_PAD, VOX)
+// stack(DRUMS_GARAGE, BASSLINE_BROKEN, LEAD_SUPERSAW, SPACE_PAD, VOX)
+// stack(DRUMS_TECHNO, BASSLINE_SUB, LEAD_CHIFF, SPACE_PAD, VOX)
+// stack(DRUMS_MAIN, BASSLINE_BROKEN, BLIP_SYNTH, VOX)
+// stack(DRUMS_FILL, BASSLINE_ROLLER, LEAD_SUPERSAW, POLY_PAD, REVERSE)
+// stack(DRUMS_UKG_2STEP, BASSLINE_2STEP, PAD_UKG_SYNC, LEAD_CHIFF, VOX)
+// stack(DRUMS_COSMIC_EDM, BASSLINE_SPACE_BOUNCE, SPACE_CHORD_PLUCK, GLIDE_PAD, BLIP_SYNTH)
+// stack(DRUMS_FUNKY, BASSLINE_ROLLER, PAD_FAST_SWELL, SPACE_CHORD_PLUCK, VOX)
+
+// stack(DRUMS_COSMIC_EDM, BASSLINE_SPACE_BOUNCE, GLIDE_PAD, SPACE_CHORD_PLUCK, VOX)
+
+ // BASSLINE_CLUB_EDM
+// BASSLINE_CLUB_HOP
+
+stack(BASSLINE_CLUB_EDM, DRUMS_MAIN, LEAD_SUPERSAW)

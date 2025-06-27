@@ -68,7 +68,7 @@ const DRUMS_VARIANT_1 = stack(KICK_1, CLAP_1, HAT_1, OHAT_1, SHAKE_1)
 const DRUMS_VARIANT_2 = stack(KICK_2, CLAP_2, HAT_FAST, OHAT_2, SHAKE_2)
 
 // === OUTPUT ===
-const DRUMS = DRUMS_VARIANT_1  // <-- switch to VARIANT_1 for more chill groove
+const DRUMS = DRUMS_VARIANT_1  // 
 
 // === FINAL STACK ===
 stack(BASSLINE_ROLLER, BASSLINE_SUB, DRUMS)
